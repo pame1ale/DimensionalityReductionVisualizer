@@ -1,70 +1,89 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, render_template, jsonify
 import pandas as pd
-import numpy as np
+from sklearn.datasets import load_wine
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+import plotly.graph_objects as go
+import json
 
 app = Flask(__name__)
 
-#Reading data
-#data_df = pd.read_csv("static/data/churn_data.csv")
-churn_df = pd.read_csv("static/data/wine.csv")
-commu = pd.read_csv("static/data/communities.csv")
-air = pd.read_csv("static/data/airqualityuci.csv")
+# Cargar el conjunto de datos wine de scikit-learn
+data = load_wine()
+wine_df = pd.DataFrame(data.data, columns=data.feature_names)
+wine_df['target'] = data.target
 
-#churn_df = data_df[(data_df['Churn']=="Yes").notnull()]
 
 @app.route('/')
 def index():
    return render_template('index.html')
 
-def calculate_percentage(val, total):
-   """Calculates the percentage of a value over a total"""
-   np.seterr(invalid='ignore')
-   percent = np.round((np.divide(val, total) * 100), 2)
-   return percent
+@app.route('/pca_plot')
+def pca_plot():
+    # Aplicar PCA para reducir la dimensionalidad a 2 componentes principales
+    pca = PCA(n_components=2)
+    wine_sintarget = wine_df.drop(columns=['target'])
+    reduced_data = pca.fit_transform(wine_sintarget)
 
-def data_creation(data, percent, class_labels, group=None):
-   for index, item in enumerate(percent):
-       data_instance = {}
-       data_instance['category'] = class_labels[index]
-       data_instance['value'] = item
-       data_instance['group'] = group
-       data.append(data_instance)
+    # Crear un DataFrame con los datos reducidos
+    reduced_df = pd.DataFrame(data=reduced_data, columns=['Component 1', 'Component 2'])
+    reduced_df['target'] = wine_df['target']
 
-@app.route('/get_piechart_data')
-def get_piechart_data():
-   contract_labels = ['1', '2', '3']
-   _ = churn_df.groupby('class').size().values
-   class_percent = calculate_percentage(_, np.sum(_)) #Getting the value counts and total
+    # Crear un gráfico de dispersión interactivo con Plotly
+    fig = go.Figure()
+    for target_label in reduced_df['target'].unique():
+        fig.add_trace(go.Scatter(
+            x=reduced_df.loc[reduced_df['target'] == target_label, 'Component 1'],
+            y=reduced_df.loc[reduced_df['target'] == target_label, 'Component 2'],
+            mode='markers',
+            name=f'Target {target_label}'
+        ))
 
-   piechart_data= []
-   data_creation(piechart_data, class_percent, contract_labels)
-   return jsonify(piechart_data)
+    fig.update_layout(
+        title='PCA - Wine Data',
+        xaxis_title='Component 1',
+        yaxis_title='Component 2',
+        showlegend=True
+    )
 
-@app.route('/get_barchart_data')
-def get_barchart_data():
-   tenure_labels = ['10-10.5', '11-11.5', '12-12.5', '13-13.5', '14-14.5', '15-15.5', '16-16.5', '17-17.5']
-   churn_df['alcohol_group'] = pd.cut(churn_df.alcohol, range(0, 81, 10), labels=tenure_labels)
-   select_df = churn_df[['alcohol_group','class']]
-   contract_month = select_df[select_df['class']=='1']
-   contract_one = select_df[select_df['class']=='2']
-   contract_two =  select_df[select_df['class']=='3']
-   _ = contract_month.groupby('alcohol_group').size().values
-   mon_percent = calculate_percentage(_, np.sum(_))
-   _ = contract_one.groupby('alcohol_group').size().values
-   one_percent = calculate_percentage(_, np.sum(_))
-   _ = contract_two.groupby('alcohol_group').size().values
-   two_percent = calculate_percentage(_, np.sum(_))
-   _ = select_df.groupby('alcohol_group').size().values
-   all_percent = calculate_percentage(_, np.sum(_))
+    # Convertir los datos del gráfico a formato JSON compatible
 
-   barchart_data = []
-   data_creation(barchart_data,all_percent, tenure_labels, "All")
-   data_creation(barchart_data,mon_percent, tenure_labels, "1")
-   data_creation(barchart_data,one_percent, tenure_labels, "2")
-   data_creation(barchart_data,two_percent, tenure_labels, "3")
-   return jsonify(barchart_data)
+    plot_data = json.loads(fig.to_json())
 
+    return jsonify(plot_data)
 
+@app.route('/tsne_plot')
+def tsne_plot():
+    # Aplicar t-SNE para reducir la dimensionalidad a 2 componentes
+    tsne = TSNE(n_components=2, random_state=42)
+    wine_sintarget = wine_df.drop(columns=['target'])
+    reduced_data = tsne.fit_transform(wine_sintarget)
+
+    # Crear un DataFrame con los datos reducidos
+    reduced_df = pd.DataFrame(data=reduced_data, columns=['Component 1', 'Component 2'])
+    reduced_df['target'] = wine_df['target']
+
+    # Crear un gráfico de dispersión interactivo con Plotly
+    fig = go.Figure()
+    for target_label in reduced_df['target'].unique():
+        fig.add_trace(go.Scatter(
+            x=reduced_df.loc[reduced_df['target'] == target_label, 'Component 1'],
+            y=reduced_df.loc[reduced_df['target'] == target_label, 'Component 2'],
+            mode='markers',
+            name=f'Target {target_label}'
+        ))
+
+    fig.update_layout(
+        title='t-SNE - Wine Data',
+        xaxis_title='Component 1',
+        yaxis_title='Component 2',
+        showlegend=True
+    )
+
+    # Convertir los datos del gráfico a formato JSON compatible
+    plot_data = json.loads(fig.to_json())
+
+    return jsonify(plot_data)
 
 
 if __name__ == '__main__':

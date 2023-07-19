@@ -3,104 +3,46 @@
 
  <head>
    <meta charset="utf-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-   <meta name="description" content="Data Dashboard">
-   <meta name="author" content="Aboze Brain">
-   <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Dashboard</title>
-
-   <style>
-    /* Add some styling to the histogram */
-    .bar {
-      fill: steelblue;
-    }
-  </style>
-
-
+   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
  </head>
  <body>
-       <div class="about">
-         <h1>Dashboard</h1>
-         <h2>Wine</h2>
-       </div>
+  <h1>Linking and Brushing Scatter Plot</h1>
 
-       <div class="visualization">
-        <div id="pieChart"></div> 
-        <div id="barChart"></div>
+  <h1>PCA</h1>
+  <div id="pca_plot"></div>
 
-        
-       </div>
-      <svg id="histogram"></svg>
+  <h1>t-SNE</h1>
+  <div id="tsne_plot"></div>
 
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script>
+      // Función para cargar el gráfico PCA
+      function loadPCAPlot() {
+          fetch('/pca_plot')
+              .then(response => response.json())
+              .then(data => Plotly.newPlot('pca_plot', data.data, data.layout));
+      }
 
-       <script>
-        // Obtén los datos del servidor Flask
-        d3.json("/").then(function(data) {
-          // Set the dimensions and margins of the histogram
-          const margin = { top: 10, right: 30, bottom: 30, left: 40 },
-            width = 600 - margin.left - margin.right,
-            height = 400 - margin.top - margin.bottom;
-    
-          // Create the SVG element
-          const svg = d3.select("#histogram")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
-    
-          // Create a histogram generator
-          const histogram = d3.histogram()
-            .domain(d3.extent(data)) // Set the range of the data
-            .thresholds(d3.range(85, 100, 2)); // Set the bins
-    
-          // Generate the histogram bins
-          const bins = histogram(data);
-    
-          // Set the x scale
-          const x = d3.scaleLinear()
-            .domain(d3.extent(data))
-            .range([0, width]);
-    
-          // Set the y scale
-          const y = d3.scaleLinear()
-            .domain([0, d3.max(bins, d => d.length)])
-            .range([height, 0]);
-    
-          // Add the bars to the histogram
-          svg.selectAll("rect")
-            .data(bins)
-            .enter()
-            .append("rect")
-            .attr("class", "bar")
-            .attr("x", 1)
-            .attr("transform", d => `translate(${x(d.x0)}, ${y(d.length)})`)
-            .attr("width", d => x(d.x1) - x(d.x0) - 1)
-            .attr("height", d => height - y(d.length));
-    
-          // Add the x-axis
-          svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x));
-    
-          // Add the y-axis
-          svg.append("g")
-            .call(d3.axisLeft(y));
-        });
-      </script>
+      // Función para cargar el gráfico t-SNE
+      function loadTSNEPlot() {
+          fetch('/tsne_plot')
+              .then(response => response.json())
+              .then(data => Plotly.newPlot('tsne_plot', data.data, data.layout));
+      }
+
+      // Cargar ambos gráficos al cargar la página
+      window.onload = function() {
+          loadPCAPlot();
+          loadTSNEPlot();
+      };
+  </script>
 
 
  </body>
  <script src="https://d3js.org/d3.v5.min.js"></script>
-   <script>
-       const pieChartDataUrl = "{{ url_for('get_piechart_data') }}";
-       const barChartDataUrl = "{{ url_for('get_barchart_data') }}";
-   </script>
-   <script src="{{ url_for('static', filename='js/pieChart.js') }}"></script>
-   <script src="{{ url_for('static', filename='js/barChart.js') }}"></script>
-   <script src="{{ url_for('static', filename='js/updateBarChart.js') }}"></script>
-   <script src="{{ url_for('static', filename='js/index.js') }}"></script>
-
-
 
 
 </html>
