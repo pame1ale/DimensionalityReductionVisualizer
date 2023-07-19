@@ -7,15 +7,53 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Dashboard</title>
    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+   <link href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/litera/bootstrap.min.css" rel="stylesheet">
  </head>
  <body>
-  <h1>Linking and Brushing Scatter Plot</h1>
 
-  <h1>PCA</h1>
-  <div id="pca_plot"></div>
+    <nav class="navbar navbar-expand-lg bg-light" data-bs-theme="light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Dimensionality Reduction</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor03" aria-controls="navbarColor03" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarColor03">
+        <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+            <a class="nav-link active" href="">Home
+                <span class="visually-hidden"></span>
+            </a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="/wine">Wine</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="/communties">Communities</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="/airquality">Air Quality</a>
+            </li>
+        </ul>
+        </div>
+    </div>
+    </nav>
 
-  <h1>t-SNE</h1>
-  <div id="tsne_plot"></div>
+    <br>
+  <h1 class="text-center">Wine</h1>
+
+  <div class="container">
+    <h2>PCA</h2>
+    <div id="pca_plot"></div>
+  </div>
+
+  <div class="container">
+    <h2>t-SNE</h2>
+    <div id="tsne_plot"></div>
+  </div>
+
+  
+
+  
 
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script>
@@ -66,6 +104,12 @@
     };
 </script>
 
+
+
+    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/alert.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/tooltip.min.js"></script>
  </body>
  <script src="https://d3js.org/d3.v5.min.js"></script>
 

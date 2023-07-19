@@ -36,11 +36,11 @@ def pca_plot():
             x=reduced_df.loc[reduced_df['target'] == target_label, 'Component 1'],
             y=reduced_df.loc[reduced_df['target'] == target_label, 'Component 2'],
             mode='markers',
-            name=f'Target {target_label}'
+            name=f'Cluster {target_label}'
         ))
 
     fig.update_layout(
-        title='PCA - Wine Data',
+        #title='PCA - Wine Data',
         xaxis_title='Component 1',
         yaxis_title='Component 2',
         showlegend=True
@@ -70,11 +70,11 @@ def tsne_plot():
             x=reduced_df.loc[reduced_df['target'] == target_label, 'Component 1'],
             y=reduced_df.loc[reduced_df['target'] == target_label, 'Component 2'],
             mode='markers',
-            name=f'Target {target_label}'
+            name=f'Cluster {target_label}'
         ))
 
     fig.update_layout(
-        title='t-SNE - Wine Data',
+        #title='t-SNE - Wine Data',
         xaxis_title='Component 1',
         yaxis_title='Component 2',
         showlegend=True
