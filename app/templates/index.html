@@ -19,27 +19,52 @@
 
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script>
-      // Función para cargar el gráfico PCA
-      function loadPCAPlot() {
-          fetch('/pca_plot')
-              .then(response => response.json())
-              .then(data => Plotly.newPlot('pca_plot', data.data, data.layout));
-      }
+    // Función para cargar el gráfico PCA
+    function loadPCAPlot() {
+        fetch('/pca_plot')
+            .then(response => response.json())
+            .then(data => {
+                Plotly.newPlot('pca_plot', data.data, data.layout);
+                // Añadir un evento de selección para el gráfico PCA
+                document.getElementById('pca_plot').on('plotly_selected', (eventData) => {
+                    var selectedPoints = eventData.points;
+                    var selectedIndices = selectedPoints.map(point => point.pointIndex);
+                    updateTSNEPlot(selectedIndices);
+                });
+            });
+    }
 
-      // Función para cargar el gráfico t-SNE
-      function loadTSNEPlot() {
-          fetch('/tsne_plot')
-              .then(response => response.json())
-              .then(data => Plotly.newPlot('tsne_plot', data.data, data.layout));
-      }
+    // Función para cargar el gráfico t-SNE
+    function loadTSNEPlot() {
+        fetch('/tsne_plot')
+            .then(response => response.json())
+            .then(data => {
+                Plotly.newPlot('tsne_plot', data.data, data.layout);
+                // Añadir un evento de selección para el gráfico t-SNE
+                document.getElementById('tsne_plot').on('plotly_selected', (eventData) => {
+                    var selectedPoints = eventData.points;
+                    var selectedIndices = selectedPoints.map(point => point.pointIndex);
+                    updatePCAPlot(selectedIndices);
+                });
+            });
+    }
 
-      // Cargar ambos gráficos al cargar la página
-      window.onload = function() {
-          loadPCAPlot();
-          loadTSNEPlot();
-      };
-  </script>
+    // Actualizar el gráfico PCA con los puntos seleccionados en el gráfico t-SNE
+    function updatePCAPlot(selectedIndices) {
+        Plotly.restyle('pca_plot', {selectedpoints: selectedIndices});
+    }
 
+    // Actualizar el gráfico t-SNE con los puntos seleccionados en el gráfico PCA
+    function updateTSNEPlot(selectedIndices) {
+        Plotly.restyle('tsne_plot', {selectedpoints: selectedIndices});
+    }
+
+    // Cargar ambos gráficos al cargar la página
+    window.onload = function() {
+        loadPCAPlot();
+        loadTSNEPlot();
+    };
+</script>
 
  </body>
  <script src="https://d3js.org/d3.v5.min.js"></script>
