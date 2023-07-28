@@ -3,6 +3,7 @@ import pandas as pd
 from sklearn.datasets import load_wine
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
+from sklearn.cluster import KMeans, DBSCAN
 import plotly.graph_objects as go
 import json
 
@@ -13,10 +14,31 @@ data = load_wine()
 wine_df = pd.DataFrame(data.data, columns=data.feature_names)
 wine_df['target'] = data.target
 
-
 @app.route('/')
 def index():
-   return render_template('index.html')
+   # Obtener la lista de atributos de la base de datos wine
+   attributes = list(wine_df.columns)
+   return render_template('index.html', attributes=attributes)
+
+def kmeans_clustering(data, n_clusters=3):
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+    clusters = kmeans.fit_predict(data)
+    return clusters
+
+def dbscan_clustering(data, eps=3, min_samples=2):
+    dbscan = DBSCAN(eps=eps, min_samples=min_samples)
+    clusters = dbscan.fit_predict(data)
+    return clusters
+
+def get_selected_attributes():
+    # Obtener los atributos seleccionados por el usuario desde el request
+    selected_attributes = request.args.getlist('attribute')
+    return selected_attributes
+
+def get_selected_data(selected_attributes):
+    # Filtrar el DataFrame wine_df para obtener solo los atributos seleccionados
+    selected_data = wine_df[selected_attributes]
+    return selected_data
 
 @app.route('/pca_plot')
 def pca_plot():
